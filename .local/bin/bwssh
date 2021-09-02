@@ -1,0 +1,4 @@
+#!/bin/sh
+
+bw list items "[ssh]" | jq -r '.[] | select(.fields != null) | .fields | .[] | select(.name == "command") | .value'
+

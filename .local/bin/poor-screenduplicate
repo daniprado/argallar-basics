@@ -1,0 +1,6 @@
+#!/usr/bin/env zsh
+emulate -LR zsh
+set -o errexit
+
+wayvnc --render-cursor --output=eDP-1 &
+remmina -c ~/.config/remmina/profile/localhost.remmina

@@ -1,0 +1,10 @@
+#!/usr/bin/env zsh
+emulate -LR zsh
+set -o errexit
+
+mv ${HOME}/.config/zsh/histfile ${HOME}/tmp/histfile_old
+strings ${HOME}/.config/zsh/histfile_old > ${HOME}/.config/zsh/histfile
+fc -R ${HOME}/.config/zsh/histfile
+rm ${HOME}/.config/zsh/histfile_old
+
+exit 0

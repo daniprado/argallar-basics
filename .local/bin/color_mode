@@ -1,0 +1,26 @@
+#!/usr/bin/env zsh
+emulate -LR zsh
+set -o errexit
+
+vim_c_d="dark"
+vim_c_l="light"
+alacritty_c_d="gruvbox_dark"
+alacritty_c_l="gruvbox_light"
+
+current=$(grep "set background=" ~/.config/nvim/init.vim | cut -d'=' -f 2)
+if [[ ${current} == 'dark' ]]; then
+  vim_c=${vim_c_l}
+  alacritty_c=${alacritty_c_l}
+elif [[ ${current} == 'light' ]]; then
+  vim_c=${vim_c_d}
+  alacritty_c=${alacritty_c_d}
+else
+  echo "Error processing current mode: ${current}"
+  exit 1
+fi
+
+sed -i -E "s/(.*set background=).*/\1${vim_c}/" ~/.config/nvim/init.vim
+ag-nvim-broadcast "source ~/.config/nvim/init.vim"
+alacritty-colorscheme apply ${alacritty_c}.yaml
+
+exit 0
