@@ -112,3 +112,11 @@ create_link () {
   exe "ln -s ${orig} ${dest}"
 }
 export -f create_link
+
+remove () {
+  local locations=("$@")
+  for loc in "${folders[@]}"; do
+    exe "rm -rf ${loc}"
+  done
+}
+export -f remove
