@@ -15,7 +15,7 @@ import click
 cli = click.Group()
 
 BANNED_DIRS = ".git,_files,__pycache__,.stfolder,backup"
-BANNED_FILES = "init.sh,init.json,install.sh,LICENSE,README.md"
+BANNED_FILES = ".git,init.sh,init.json,install.sh,LICENSE,README.md"
 
 S_CHAR = '@'
 D_LINK = f"l{S_CHAR}"
