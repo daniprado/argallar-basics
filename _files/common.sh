@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 export AG_DOTFILES="${AG_SRC:-~/dotfiles}"
 

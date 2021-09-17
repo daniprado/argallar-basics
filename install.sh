@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 LBIN_PATH="${HOME}/.local/bin"
 CURR_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
