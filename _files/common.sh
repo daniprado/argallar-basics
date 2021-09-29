@@ -31,9 +31,8 @@ exe () {
   local cmd=$1
   if [[ -z "${AG_FAKE}" ]]; then
     eval ${cmd}
-  else
-    echo "${cmd}"
   fi
+  echo "${cmd}"
 }
 export -f exe
 
@@ -115,7 +114,7 @@ export -f create_link
 
 remove () {
   local locations=("$@")
-  for loc in "${folders[@]}"; do
+  for loc in "${locations[@]}"; do
     exe "rm -rf ${loc}"
   done
 }

@@ -202,7 +202,7 @@ class AppGroup(App):
         for app in self.apps:
             app.install()
         _echo(f"-> Installed {self.name}...")
-    
+
     def uninstall(self):
         _echo(f"-> Uninstalling {self.name} [{self.path}]...")
         for app in self.apps:
