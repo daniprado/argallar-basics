@@ -2,25 +2,32 @@
 emulate -LR zsh
 set -o errexit
 
-vim_c_d="dark"
-vim_c_l="light"
-alacritty_c_d="gruvbox_dark"
-alacritty_c_l="gruvbox_light"
-
 current=$(grep "set background=" ~/.config/nvim/init.vim | cut -d'=' -f 2)
 if [[ ${current} == 'dark' ]]; then
-  vim_c=${vim_c_l}
-  alacritty_c=${alacritty_c_l}
+  gtk_b="0"
+  kv_c="KvGnome"
+  vim_c="light"
+  alacritty_c="gruvbox_light"
+  vivaldi_t="1"
 elif [[ ${current} == 'light' ]]; then
-  vim_c=${vim_c_d}
-  alacritty_c=${alacritty_c_d}
+  gtk_b="1"
+  kv_c="KvGnomeDark"
+  vim_c="dark"
+  alacritty_c="gruvbox_dark"
+  vivaldi_t="10"
 else
   echo "Error processing current mode: ${current}"
   exit 1
 fi
 
+sed -i -E "s/(gtk-application-prefer-dark-theme=).*/\1${gtk_b}/" ~/.config/gtk-3.0/settings.ini
+sed -i -E "s/(^theme=).*/\1${kv_c}/" ~/.config/Kvantum/kvantum.kvconfig
 sed -i -E "s/(.*set background=).*/\1${vim_c}/" ~/.config/nvim/init.vim
 ag-nvim-broadcast "source ~/.config/nvim/init.vim"
 alacritty-colorscheme apply ${alacritty_c}.yaml
+
+# FIXME Chapucismo...
+sudo ydotool key Super_L+a , sleep 150 , type 'w Vivaldi' , sleep 200 , key Enter , sleep 150
+sudo ydotool key --repeat ${vivaldi_t} Ctrl+Alt+Shift+t
 
 exit 0
