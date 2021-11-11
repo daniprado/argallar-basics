@@ -4,12 +4,14 @@ set -o errexit
 
 current=$(grep "set background=" ~/.config/nvim/init.vim | cut -d'=' -f 2)
 if [[ ${current} == 'dark' ]]; then
+  gtk_c="Arc-Gruvbox"
   gtk_b="0"
   kv_c="KvGnome"
   vim_c="light"
   alacritty_c="gruvbox_light"
   vivaldi_t="1"
 elif [[ ${current} == 'light' ]]; then
+  gtk_c="gruvbox-dark-gtk"
   gtk_b="1"
   kv_c="KvGnomeDark"
   vim_c="dark"
@@ -20,6 +22,7 @@ else
   exit 1
 fi
 
+sed -i -E "s/(gtk-theme-name=).*/\1${gtk_c}/" ~/.config/gtk-3.0/settings.ini
 sed -i -E "s/(gtk-application-prefer-dark-theme=).*/\1${gtk_b}/" ~/.config/gtk-3.0/settings.ini
 sed -i -E "s/(^theme=).*/\1${kv_c}/" ~/.config/Kvantum/kvantum.kvconfig
 sed -i -E "s/(.*set background=).*/\1${vim_c}/" ~/.config/nvim/init.vim
