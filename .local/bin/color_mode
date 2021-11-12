@@ -30,7 +30,7 @@ ag-nvim-broadcast "source ~/.config/nvim/init.vim"
 alacritty-colorscheme apply ${alacritty_c}.yaml
 
 # FIXME Chapucismo...
-sudo ydotool key Super_L+a , sleep 150 , type 'w Vivaldi' , sleep 200 , key Enter , sleep 150
+sudo ydotool key Super_L+a , sleep 150 , type 'w Vivaldi' , sleep 250 , key Enter , sleep 150
 sudo ydotool key --repeat ${vivaldi_t} Ctrl+Alt+Shift+t
 
 exit 0
