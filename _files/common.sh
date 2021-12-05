@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export AG_DOTFILES="${AG_SRC:-~/dotfiles}"
+export AG_DOTFILES="${AG_SRC:-$HOME/dotfiles}"
 
 [[ "${XDG_CONFIG_HOME}" != "${HOME}"* ]] && export XDG_CONFIG_HOME="${HOME}/.config"
 export AG_CONFIG="${XDG_CONFIG_HOME}"
