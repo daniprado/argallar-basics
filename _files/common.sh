@@ -71,7 +71,7 @@ pip_install () {
   local packages=("$@")
 
   for pkg in "${packages[@]}"; do
-    exe "(cd ~; pip install --user ${pkg})"
+    exe "(cd ${HOME}; pip install --user ${pkg})"
   done
 }
 export -f pip_install
@@ -80,7 +80,7 @@ pipx_install () {
   local packages=("$@")
 
   for pkg in "${packages[@]}"; do
-    exe "(cd ~; pipx install --force ${pkg})"
+    exe "(cd ${HOME}; pipx install --force ${pkg})"
   done
 }
 export -f pipx_install
