@@ -108,10 +108,11 @@ def _getpathelems(init_path: str, init_user: str, init_host: str,
             user, du = _calcsplit(d, D_USER, init_user, sep_char)
             host, dh = _calcsplit(d, D_HOST, init_host, sep_char)
             dn = du if du != d else dh
+            p_src = f"{rpath}{d}"
             if user == init_user and host == init_host:
-                plink = PathLink(f"{rpath}{d}", f"{rpath}{dn}")
+                plink = PathLink(p_src, f"{rpath}{dn}")
                 result.append(plink)
-                bdirs.update(plink.src)
+            bdirs.update(p_src)
 
         for f in [f for f in files if f not in ban_files]:
             user, fu = _calcsplit(f, F_USER, init_user, sep_char)
