@@ -19,6 +19,8 @@ BANNED_FILES = ".git,.gitignore,init.sh,init.json,install.sh,LICENSE,README.md"
 
 S_CHAR = '@'
 D_LINK = f"l{S_CHAR}"
+D_USER = f"lu{S_CHAR}"
+D_HOST = f"lh{S_CHAR}"
 F_USER = f"u{S_CHAR}"
 F_HOST = f"h{S_CHAR}"
 
@@ -98,6 +100,18 @@ def _getpathelems(init_path: str, init_user: str, init_host: str,
         ]
         result.extend(dlinks)
         bdirs.update(PathLink.getsrcs(dlinks))
+
+        for d in [
+                    d for d in dirs
+                    if d.startswith(D_USER) or d.startswith(D_HOST)
+                ]:
+            user, du = _calcsplit(d, D_USER, init_user, sep_char)
+            host, dh = _calcsplit(d, D_HOST, init_host, sep_char)
+            dn = du if du != d else dh
+            if user == init_user and host == init_host:
+                plink = PathLink(f"{rpath}{d}", f"{rpath}{dn}")
+                result.append(plink)
+                bdirs.update(plink.src)
 
         for f in [f for f in files if f not in ban_files]:
             user, fu = _calcsplit(f, F_USER, init_user, sep_char)
