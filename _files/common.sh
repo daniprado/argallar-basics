@@ -93,11 +93,11 @@ pkg_install () {
 
   is_tbi "${cmd}"
   if [[ "$?" -eq "1" ]]; then
-    if type "pacman" >/dev/null && [[ "-" -ne "${pacman_pkg}" ]]; then
+    if type "pacman" >/dev/null && [[ "-" != "${pacman_pkg}" ]]; then
       exe "sudo pacman -S ${pacman_pkg}"
-    elif type "apt" >/dev/null && [[ "-" -ne "${apt_pkg}" ]]; then
+    elif type "apt" >/dev/null && [[ "-" != "${apt_pkg}" ]]; then
       exe "sudo apt install ${apt_pkg}"
-    elif type "yum" >/dev/null && [[ "-" -ne "${yum_pkg}" ]]; then
+    elif type "yum" >/dev/null && [[ "-" != "${yum_pkg}" ]]; then
       exe "sudo yum install ${yum_pkg}"
     fi
   fi
