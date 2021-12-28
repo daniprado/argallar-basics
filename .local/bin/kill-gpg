@@ -4,12 +4,8 @@ set -o errexit
 
 sudo zsh -c "echo -n \"1-3\" >  /sys/bus/usb/drivers/usb/unbind"
 sudo zsh -c "echo -n \"1-3\" >  /sys/bus/usb/drivers/usb/bind"
-
-pkill -9 gpg-agent
-rm /run/user/`id -u`/gnupg/S*
-export GPG_TTY="$(tty)"
-export SSH_AUTH_SOCK=$(gpgconf --list-dirs agent-ssh-socket)
-gpgconf --launch gpg-agent
 gpg-connect-agent "scd serialno" "learn --force" /bye
+
+source ${ZSHCONF}/gpg-init.zsh
 
 exit 0
