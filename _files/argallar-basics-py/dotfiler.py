@@ -21,8 +21,12 @@ S_CHAR = '@'
 D_LINK = f"l{S_CHAR}"
 D_USER = f"lu{S_CHAR}"
 D_HOST = f"lh{S_CHAR}"
+D_SSH  = f"ls{S_CHAR}"
+D_TERM = f"lt{S_CHAR}"
 F_USER = f"u{S_CHAR}"
 F_HOST = f"h{S_CHAR}"
+F_SSH  = f"s{S_CHAR}"
+F_TERM = f"t{S_CHAR}"
 
 
 def _echo(msg, err=False):
@@ -75,6 +79,8 @@ def _calcsplit(filename: str, token: str, default_res: str, sep_char: str):
         res, fn = filename.split(token)[1].split(sep_char)
     return res, fn
 
+def _is_ssh_session():
+    return osenv.get('SSH_TTY') is not None
 
 def _getpathelems(init_path: str, init_user: str, init_host: str,
         ban_dirs: set, ban_files: set, sep_char: str) -> list:
@@ -114,12 +120,38 @@ def _getpathelems(init_path: str, init_user: str, init_host: str,
                 result.append(plink)
             bdirs.update(p_src)
 
+        dsshs = [
+            PathLink(f"{rpath}{d}", f"{rpath}{d.split(D_SSH)[1]}")
+            for d in dirs if d.startswith(D_SSH)
+        ]
+        if _is_ssh_session():
+            result.extend(dsshs)
+        bdirs.update(PathLink.getsrcs(dsshs))
+
+        dterms = [
+            PathLink(f"{rpath}{d}", f"{rpath}{d.split(D_TERM)[1]}")
+            for d in dirs if d.startswith(D_TERM)
+        ]
+        if not _is_ssh_session():
+            result.extend(dterms)
+        bdirs.update(PathLink.getsrcs(dterms))
+
         for f in [f for f in files if f not in ban_files]:
-            user, fu = _calcsplit(f, F_USER, init_user, sep_char)
-            host, fh = _calcsplit(f, F_HOST, init_host, sep_char)
-            fn = fu if fu != f else fh
-            if user == init_user and host == init_host:
-                result.append(PathLink(f"{rpath}{f}", f"{rpath}{fn}"))
+
+            if f.startswith(F_SSH) or f.startswith(F_TERM):
+                if _is_ssh_session() and f.startswith(F_SSH):
+                    fn = f.split(F_SSH)[1]
+                    result.append(PathLink(f"{rpath}{f}", f"{rpath}{fn}"))
+                elif not _is_ssh_session() and f.startswith(F_TERM):
+                    fn = f.split(F_TERM)[1]
+                    result.append(PathLink(f"{rpath}{f}", f"{rpath}{fn}"))
+
+            else:
+                user, fu = _calcsplit(f, F_USER, init_user, sep_char)
+                host, fh = _calcsplit(f, F_HOST, init_host, sep_char)
+                fn = fu if fu != f else fh
+                if user == init_user and host == init_host:
+                    result.append(PathLink(f"{rpath}{f}", f"{rpath}{fn}"))
 
     return result
 
