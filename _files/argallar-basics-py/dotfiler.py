@@ -4,7 +4,6 @@ Inspired by the wonderful: https://www.gnu.org/software/stow
 
 from os import path, walk, getlogin, listdir
 from os import environ as osenv
-from socket import gethostname
 from re import sub
 from subprocess import call
 from pathlib import Path
@@ -20,13 +19,7 @@ BANNED_FILES = ".git,.gitignore,init.sh,init.json,install.sh,LICENSE,README.md"
 S_CHAR = '@'
 D_LINK = f"l{S_CHAR}"
 D_USER = f"lu{S_CHAR}"
-D_HOST = f"lh{S_CHAR}"
-D_SSH  = f"ls{S_CHAR}"
-D_TERM = f"lt{S_CHAR}"
 F_USER = f"u{S_CHAR}"
-F_HOST = f"h{S_CHAR}"
-F_SSH  = f"s{S_CHAR}"
-F_TERM = f"t{S_CHAR}"
 
 
 def _echo(msg, err=False):
@@ -79,11 +72,8 @@ def _calcsplit(filename: str, token: str, default_res: str, sep_char: str):
         res, fn = filename.split(token)[1].split(sep_char)
     return res, fn
 
-def _is_ssh_session():
-    return osenv.get('SSH_TTY') is not None
-
-def _getpathelems(init_path: str, init_user: str, init_host: str,
-        ban_dirs: set, ban_files: set, sep_char: str) -> list:
+def _getpathelems(init_path: str, init_user: str, ban_dirs: set,
+        ban_files: set, sep_char: str) -> list:
 
     result = []
     bdirs = ban_dirs
@@ -107,51 +97,17 @@ def _getpathelems(init_path: str, init_user: str, init_host: str,
         result.extend(dlinks)
         bdirs.update(PathLink.getsrcs(dlinks))
 
-        for d in [
-                    d for d in dirs
-                    if d.startswith(D_USER) or d.startswith(D_HOST)
-                ]:
+        for d in [d for d in dirs if d.startswith(D_USER)]:
             user, du = _calcsplit(d, D_USER, init_user, sep_char)
-            host, dh = _calcsplit(d, D_HOST, init_host, sep_char)
-            dn = du if du != d else dh
             p_src = f"{rpath}{d}"
-            if user == init_user and host == init_host:
-                plink = PathLink(p_src, f"{rpath}{dn}")
-                result.append(plink)
+            if user == init_user:
+                result.append(PathLink(p_src, f"{rpath}{du}"))
             bdirs.update(p_src)
 
-        dsshs = [
-            PathLink(f"{rpath}{d}", f"{rpath}{d.split(D_SSH)[1]}")
-            for d in dirs if d.startswith(D_SSH)
-        ]
-        if _is_ssh_session():
-            result.extend(dsshs)
-        bdirs.update(PathLink.getsrcs(dsshs))
-
-        dterms = [
-            PathLink(f"{rpath}{d}", f"{rpath}{d.split(D_TERM)[1]}")
-            for d in dirs if d.startswith(D_TERM)
-        ]
-        if not _is_ssh_session():
-            result.extend(dterms)
-        bdirs.update(PathLink.getsrcs(dterms))
-
         for f in [f for f in files if f not in ban_files]:
-
-            if f.startswith(F_SSH) or f.startswith(F_TERM):
-                if _is_ssh_session() and f.startswith(F_SSH):
-                    fn = f.split(F_SSH)[1]
-                    result.append(PathLink(f"{rpath}{f}", f"{rpath}{fn}"))
-                elif not _is_ssh_session() and f.startswith(F_TERM):
-                    fn = f.split(F_TERM)[1]
-                    result.append(PathLink(f"{rpath}{f}", f"{rpath}{fn}"))
-
-            else:
-                user, fu = _calcsplit(f, F_USER, init_user, sep_char)
-                host, fh = _calcsplit(f, F_HOST, init_host, sep_char)
-                fn = fu if fu != f else fh
-                if user == init_user and host == init_host:
-                    result.append(PathLink(f"{rpath}{f}", f"{rpath}{fn}"))
+            user, fu = _calcsplit(f, F_USER, init_user, sep_char)
+            if user == init_user:
+                result.append(PathLink(f"{rpath}{f}", f"{rpath}{fu}"))
 
     return result
 
@@ -160,14 +116,13 @@ def _getpathelems(init_path: str, init_user: str, init_host: str,
 @click.option('--op', type=click.Choice(['create', 'recreate', 'remove'], case_sensitive=False), default='create', help='operation to execute')
 @click.option('--dest', type=click.Path(exists=True, file_okay=False, writable=True), default=Path.home(), help='destination root path')
 @click.option('--user', default=getlogin(), help='username to use as reference')
-@click.option('--host', default=gethostname(), help='hostname to use as reference')
 @click.option('--strict', type=click.BOOL, default=False, help='Halt on command error')
 @click.option('--fake', type=click.BOOL, default=False, help='list commands but do not execute them')
 @click.option('--ban_dirs', default=BANNED_DIRS, help='list of folder names to ignore')
 @click.option('--ban_files', default=BANNED_FILES, help='list of filenames to ignore')
-@click.option('--sep_char', default=S_CHAR, help='char to be used as user/host/dirAsLink filename token separator')
+@click.option('--sep_char', default=S_CHAR, help='char to be used as user/dirAsLink filename token separator')
 @click.argument('src', type=click.Path(exists=True, file_okay=False))
-def linker(op, dest, user, host, strict, fake, ban_dirs, ban_files, sep_char, src):
+def linker(op, dest, user, strict, fake, ban_dirs, ban_files, sep_char, src):
 
     bdirs = set(ban_dirs.split(','))
     bfiles = set(ban_files.split(','))
@@ -176,9 +131,9 @@ def linker(op, dest, user, host, strict, fake, ban_dirs, ban_files, sep_char, sr
 
     cmds = []
     if op in ('remove', 'recreate'):
-        cmds.extend([p.getremove(dest) for p in _getpathelems(src, user, host, bdirs, bfiles, sep_char)])
+        cmds.extend([p.getremove(dest) for p in _getpathelems(src, user, bdirs, bfiles, sep_char)])
     if op in ('create', 'recreate'):
-        cmds.extend([p.getcreate(src, dest) for p in _getpathelems(src, user, host, bdirs, bfiles, sep_char)])
+        cmds.extend([p.getcreate(src, dest) for p in _getpathelems(src, user, bdirs, bfiles, sep_char)])
 
     for cmd in [c for c in cmds if c]:
         click.echo(f"{' '.join(cmd)}")
@@ -221,7 +176,6 @@ class App(object):
             src=self.path,
             dest=self.ctx.params['dest'],
             user=self.ctx.params['user'],
-            host=self.ctx.params['host'],
             strict=self.ctx.params['strict'],
             fake=self.ctx.params['fake'],
         )
@@ -288,11 +242,10 @@ def _load_apps(src):
 @click.option('--src', type=click.Path(exists=True, file_okay=False), default=path.expanduser(URL_DOTFILES), help='source path of dotfiles')
 @click.option('--dest', type=click.Path(exists=True, file_okay=False, writable=True), default=Path.home(), help='destination root path')
 @click.option('--user', default=getlogin(), help='username to use as reference')
-@click.option('--host', default=gethostname(), help='hostname to use as reference')
 @click.option('--strict', type=click.BOOL, default=False, help='Halt on command error')
 @click.option('--fake', type=click.BOOL, default=False, help='list commands but do not execute them')
 @click.argument('apps', nargs=-1)
-def dotfiler(op, src, dest, user, host, strict, fake, apps):
+def dotfiler(op, src, dest, user, strict, fake, apps):
 
     osenv['AG_FAKE'] = '1' if fake else ''
     osenv['AG_STRICT'] = '1' if strict else ''
