@@ -72,8 +72,9 @@ def _calcsplit(filename: str, token: str, default_res: str, sep_char: str):
         res, fn = filename.split(token)[1].split(sep_char)
     return res, fn
 
+
 def _getpathelems(init_path: str, init_user: str, ban_dirs: set,
-        ban_files: set, sep_char: str) -> list:
+                  ban_files: set, sep_char: str) -> list:
 
     result = []
     bdirs = ban_dirs
@@ -113,14 +114,24 @@ def _getpathelems(init_path: str, init_user: str, ban_dirs: set,
 
 
 @cli.command()
-@click.option('--op', type=click.Choice(['create', 'recreate', 'remove'], case_sensitive=False), default='create', help='operation to execute')
-@click.option('--dest', type=click.Path(exists=True, file_okay=False, writable=True), default=Path.home(), help='destination root path')
-@click.option('--user', default=getlogin(), help='username to use as reference')
-@click.option('--strict', type=click.BOOL, default=False, help='Halt on command error')
-@click.option('--fake', type=click.BOOL, default=False, help='list commands but do not execute them')
-@click.option('--ban_dirs', default=BANNED_DIRS, help='list of folder names to ignore')
-@click.option('--ban_files', default=BANNED_FILES, help='list of filenames to ignore')
-@click.option('--sep_char', default=S_CHAR, help='char to be used as user/dirAsLink filename token separator')
+@click.option('--op', type=click.Choice(['create', 'recreate', 'remove'],
+              case_sensitive=False), default='create',
+              help='operation to execute')
+@click.option('--dest', type=click.Path(exists=True, file_okay=False,
+                                        writable=True),
+              default=Path.home(), help='destination root path')
+@click.option('--user', default=getlogin(),
+              help='username to use as reference')
+@click.option('--strict', type=click.BOOL, default=False,
+              help='Halt on command error')
+@click.option('--fake', type=click.BOOL, default=False,
+              help='list commands but do not execute them')
+@click.option('--ban_dirs', default=BANNED_DIRS,
+              help='list of folder names to ignore')
+@click.option('--ban_files', default=BANNED_FILES,
+              help='list of filenames to ignore')
+@click.option('--sep_char', default=S_CHAR,
+              help='char to be used as user/dirAsLink filename token sep')
 @click.argument('src', type=click.Path(exists=True, file_okay=False))
 def linker(op, dest, user, strict, fake, ban_dirs, ban_files, sep_char, src):
 
@@ -131,9 +142,15 @@ def linker(op, dest, user, strict, fake, ban_dirs, ban_files, sep_char, src):
 
     cmds = []
     if op in ('remove', 'recreate'):
-        cmds.extend([p.getremove(dest) for p in _getpathelems(src, user, bdirs, bfiles, sep_char)])
+        cmds.extend([
+            p.getremove(dest)
+            for p in _getpathelems(src, user, bdirs, bfiles, sep_char)
+        ])
     if op in ('create', 'recreate'):
-        cmds.extend([p.getcreate(src, dest) for p in _getpathelems(src, user, bdirs, bfiles, sep_char)])
+        cmds.extend([
+            p.getcreate(src, dest)
+            for p in _getpathelems(src, user, bdirs, bfiles, sep_char)
+        ])
 
     for cmd in [c for c in cmds if c]:
         click.echo(f"{' '.join(cmd)}")
@@ -191,7 +208,6 @@ class App(object):
             _echo(f"---> Not found {script} script...")
 
 
-
 class AppGroup(App):
 
     def __init__(self, name, apps=[]):
@@ -238,12 +254,21 @@ def _load_apps(src):
 
 
 @cli.command()
-@click.option('--op', type=click.Choice(['install', 'reinstall', 'uninstall'], case_sensitive=False), default='install', help='operation to execute')
-@click.option('--src', type=click.Path(exists=True, file_okay=False), default=path.expanduser(URL_DOTFILES), help='source path of dotfiles')
-@click.option('--dest', type=click.Path(exists=True, file_okay=False, writable=True), default=Path.home(), help='destination root path')
-@click.option('--user', default=getlogin(), help='username to use as reference')
-@click.option('--strict', type=click.BOOL, default=False, help='Halt on command error')
-@click.option('--fake', type=click.BOOL, default=False, help='list commands but do not execute them')
+@click.option('--op', type=click.Choice(['install', 'reinstall', 'uninstall'],
+              case_sensitive=False), default='install',
+              help='operation to execute')
+@click.option('--src', type=click.Path(exists=True, file_okay=False),
+              default=path.expanduser(URL_DOTFILES),
+              help='source path of dotfiles')
+@click.option('--dest', type=click.Path(exists=True, file_okay=False,
+                                        writable=True),
+              default=Path.home(), help='destination root path')
+@click.option('--user', default=getlogin(),
+              help='username to use as reference')
+@click.option('--strict', type=click.BOOL, default=False,
+              help='Halt on command error')
+@click.option('--fake', type=click.BOOL, default=False,
+              help='list commands but do not execute them')
 @click.argument('apps', nargs=-1)
 def dotfiler(op, src, dest, user, strict, fake, apps):
 
@@ -252,13 +277,12 @@ def dotfiler(op, src, dest, user, strict, fake, apps):
 
     cfg_apps = _load_apps(src)
     for app in apps:
-      if app in cfg_apps.keys():
-        if op in ('uninstall', 'reinstall'):
-            cfg_apps[app].uninstall()
-        if op in ('install', 'reinstall'):
-            cfg_apps[app].install()
-      else:
-        _echo(f"Application {app} not found!")
-        if strict:
-          exit(1)
-
+        if app in cfg_apps.keys():
+            if op in ('uninstall', 'reinstall'):
+                cfg_apps[app].uninstall()
+            if op in ('install', 'reinstall'):
+                cfg_apps[app].install()
+        else:
+            _echo(f"Application {app} not found!")
+            if strict:
+                exit(1)
