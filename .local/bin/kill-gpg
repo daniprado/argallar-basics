@@ -10,9 +10,7 @@ GPG_UID=$(id -u)
 GPG_AGENT_PID=$(pgrep --uid ${GPG_UID} gpg-agent)
 GPG_AGENT_TMP="/run/user/${GPG_UID}/gnupg"
 
-echo "let's see... ${GPG_AGENT_PID}"
 if [[ "${GPG_AGENT_PID}" ]]; then
-  echo "yesh!"
   kill -9 ${GPG_AGENT_PID}
   tail --pid=${GPG_AGENT_PID} -f /dev/null
   [[ -e "${GPG_AGENT_TMP}/S.gpg-agent" ]] && rm ${GPG_AGENT_TMP}/S*
