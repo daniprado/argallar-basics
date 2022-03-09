@@ -1,36 +1,35 @@
 #!/usr/bin/env zsh
-emulate -LR zsh
 set -o errexit
 
-current=$(grep "set background=" ~/.config/nvim/init.vim | cut -d'=' -f 2)
-if [[ ${current} == 'dark' ]]; then
-  gtk_c="Arc-Gruvbox"
-  gtk_b="0"
-  kv_c="KvGnome"
-  vim_c="light"
-  alacritty_c="gruvbox_light"
-  vivaldi_t="1"
-elif [[ ${current} == 'light' ]]; then
-  gtk_c="gruvbox-dark-gtk"
-  gtk_b="1"
-  kv_c="KvGnomeDark"
-  vim_c="dark"
-  alacritty_c="gruvbox_dark"
-  vivaldi_t="10"
-else
-  echo "Error processing current mode: ${current}"
-  exit 1
-fi
+param="${1}"
+cfg_color="${XDG_CONFIG_HOME}/color"
 
-sed -i -E "s/(gtk-theme-name=).*/\1${gtk_c}/" ~/.config/gtk-3.0/settings.ini
-sed -i -E "s/(gtk-application-prefer-dark-theme=).*/\1${gtk_b}/" ~/.config/gtk-3.0/settings.ini
-sed -i -E "s/(^theme=).*/\1${kv_c}/" ~/.config/Kvantum/kvantum.kvconfig
-sed -i -E "s/(.*set background=).*/\1${vim_c}/" ~/.config/nvim/init.vim
-ag-nvim-broadcast "source ~/.config/nvim/init.vim"
-alacritty-colorscheme apply ${alacritty_c}.yaml
+current="$(cat ${cfg_color})"
+[[ "${current}" == "dark" ]] && expected="light" || expected="dark"
+([[ "${param}" == "dark" ]] || [[ "${param}" == "light" ]]) && expected="${param}"
 
-# FIXME Chapucismo...
-sudo ydotool key Super_L+a , sleep 150 , type 'w Vivaldi' , sleep 250 , key Enter , sleep 150
-sudo ydotool key --repeat ${vivaldi_t} Ctrl+Alt+Shift+t
+echo "${expected}" > "${cfg_color}"
+
+apps=(
+  "alacritty"
+  "bpytop"
+  "broot"
+  "copyq"
+  "gtk-4.0"
+  "Kvantum"
+  "qt6ct"
+  "mako"
+  "nvim"
+  "sway"
+  "swaylock"
+  "ulauncher"
+  "vivaldi"
+  "waybar"
+  "zsh"
+)
+
+for app in "${apps[@]}"; do
+  ${XDG_CONFIG_HOME}/${app}/color.sh ${expected}
+done
 
 exit 0
