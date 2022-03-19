@@ -8,28 +8,41 @@ current="$(cat ${cfg_color})"
 [[ "${current}" == "dark" ]] && expected="light" || expected="dark"
 ([[ "${param}" == "dark" ]] || [[ "${param}" == "light" ]]) && expected="${param}"
 
-echo "${expected}" > "${cfg_color}"
+(cd ${XDG_SHARE_HOME}/base16; pybase16 inject \
+  --scheme gruvbox-${expected}-medium \
+  --file ${XDG_CONFIG_HOME}/alacritty/alacritty.yml \
+  --file ${XDG_CONFIG_HOME}/bpytop/themes/ag-base16.theme \
+  --file ${XDG_CONFIG_HOME}/broot/conf.hjson \
+  --file ${XDG_CONFIG_HOME}/copyq/ag-base16.ini \
+  --file ${XDG_CONFIG_HOME}/qt5ct/theme.conf \
+  --file ${XDG_CONFIG_HOME}/mako/config \
+  --file ${XDG_CONFIG_HOME}/sway/config \
+  --file ${XDG_CONFIG_HOME}/swaylock/config \
+  --file ${HOME}/.tmux.conf \
+  --file ${XDG_CONFIG_HOME}/ulauncher/user-themes/ag-base16/theme.css \
+  --file ${XDG_CONFIG_HOME}/vivaldi/themes/argallar/settings.json \
+  --file ${XDG_CONFIG_HOME}/waybar/style.css \
+  --file ${XDG_CONFIG_HOME}/zathura/zathurarc \
+  --file ${XDG_CONFIG_HOME}/zsh/theme.zsh)
+
+  #Propuesta de cambio al builder...
 
 apps=(
-  "alacritty"
-  "bpytop"
-  "broot"
   "copyq"
-  "gtk-4.0"
-  "Kvantum"
-  "qt6ct"
-  "mako"
+  "gtk-3.0"
   "nvim"
-  "sway"
-  "swaylock"
-  "ulauncher"
   "vivaldi"
-  "waybar"
-  "zsh"
 )
 
 for app in "${apps[@]}"; do
   ${XDG_CONFIG_HOME}/${app}/color.sh ${expected}
 done
+
+echo "${expected}" > "${cfg_color}"
+(killall copyq; copyq &) || true
+(killall ulauncher; ulauncher --hide-window &) || true
+(killall vivaldi-bin && vivaldi-stable &) || true
+
+swaymsg reload
 
 exit 0
