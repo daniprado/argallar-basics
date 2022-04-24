@@ -16,7 +16,7 @@ current="$(cat ${cfg_color})"
   --file ${XDG_CONFIG_HOME}/copyq/ag-base16.ini \
   --file ${XDG_CONFIG_HOME}/qt5ct/colors/ag-base16.conf \
   --file ${XDG_CONFIG_HOME}/mako/config \
-  --file ${XDG_CONFIG_HOME}/sway/config \
+  --file ${XDG_CONFIG_HOME}/sway/conf.d/15-theme.conf \
   --file ${XDG_CONFIG_HOME}/swaylock/config \
   --file ${HOME}/.tmux.conf \
   --file ${XDG_CONFIG_HOME}/ulauncher/user-themes/ag-base16/theme.css \

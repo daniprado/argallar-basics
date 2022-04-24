@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='argallar-basics',
-    version='0.1.0-b',
+    version='0.1.0-c',
     py_modules=[
       'dotfiler',
       'nvim_broadcast',

@@ -2,9 +2,8 @@
 emulate -LR zsh
 set -o errexit
 
-mv ${HOME}/.config/zsh/histfile ${HOME}/tmp/histfile_old
-strings ${HOME}/.config/zsh/histfile_old > ${HOME}/.config/zsh/histfile
-fc -R ${HOME}/.config/zsh/histfile
-rm ${HOME}/.config/zsh/histfile_old
+mv ${XDG_CACHE_HOME}/zsh/histfile ${XDG_TEMP_HOME}/histfile_old
+strings ${XDG_TEMP_HOME}/histfile_old > ${XDG_CACHE_HOME}/zsh/histfile
+fc -R ${XDG_CACHE_HOME}/zsh/histfile
 
 exit 0
