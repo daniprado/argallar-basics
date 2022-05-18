@@ -96,7 +96,7 @@ pkg_install () {
     if type "pacman" >/dev/null && [[ "-" != "${pacman_pkg}" ]]; then
       exe "sudo pacman -S ${pacman_pkg}"
     elif type "apt" >/dev/null && [[ "-" != "${apt_pkg}" ]]; then
-      exe "sudo apt install ${apt_pkg}"
+      exe "sudo apt install -y ${apt_pkg}"
     elif type "yum" >/dev/null && [[ "-" != "${yum_pkg}" ]]; then
       exe "sudo yum install ${yum_pkg}"
     fi
