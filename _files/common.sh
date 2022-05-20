@@ -89,7 +89,7 @@ pkg_install () {
   local cmd="$1"
   local pacman_pkg=$([[ ! -z "$2" ]] && echo "$2" || echo "${cmd}")
   local apt_pkg=$([[ ! -z "$3" ]] && echo "$3" || echo "${pacman_pkg}")
-  local yum_pkg=$([[ ! -z "$4" ]] && echo "$4" || echo "${apt_pkg}")
+  local dnf_pkg=$([[ ! -z "$4" ]] && echo "$4" || echo "${apt_pkg}")
 
   is_tbi "${cmd}"
   if [[ "$?" -eq "1" ]]; then
@@ -97,8 +97,8 @@ pkg_install () {
       exe "sudo pacman -S ${pacman_pkg}"
     elif type "apt" >/dev/null && [[ "-" != "${apt_pkg}" ]]; then
       exe "sudo apt install -y ${apt_pkg}"
-    elif type "yum" >/dev/null && [[ "-" != "${yum_pkg}" ]]; then
-      exe "sudo yum install ${yum_pkg}"
+    elif type "dnf" >/dev/null && [[ "-" != "${dnf_pkg}" ]]; then
+      exe "sudo dnf install ${dnf_pkg}"
     fi
   fi
 }
